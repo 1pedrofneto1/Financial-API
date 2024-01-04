@@ -1,33 +1,61 @@
-NLW Node.js Rocketseat
+### 🚀 Documentação da Financial-API
 
-### REQUISITOS
+Esta API foi construída usando Express.js e permite a manipulação de contas bancárias. 🏦
 
-- [X] Dever ser possível criar uma conta
+### 📦 Dependências
 
-- [X] Dever ser possível buscar o extrato bancário do cliente
+Aqui estão as dependências utilizadas neste projeto:
 
-- [X] Dever ser possível realizar um depósito
+1. express: Um framework web para Node.js que simplifica a criação de servidores web.
+2. json-server: Uma ferramenta para criar um servidor REST JSON falso para prototipagem e teste.
+3. node-fetch: Uma implementação leve do fetch API para Node.js.
+4. uuid: Uma biblioteca para gerar identificadores únicos universais (UUIDs).
 
-- [X] Dever ser possível realizar um saque
+### 📜 Scripts
 
-- [X] Dever ser possível buscar o extrato bancário do cliente por data
+Os seguintes scripts estão disponíveis para este projeto:
 
-- [X] Dever ser possível atualizar dados da conta do cliente
- 
-- [X] Dever ser possível obter dados da conta do cliente 
+dev: Inicia o servidor usando o nodemon, que reinicia automaticamente o servidor sempre que os arquivos são alterados.
+db: Inicia o json-server que serve o arquivo db.json.
 
-- [X] Dever ser possível deletar uma conta
+### Rotas
 
-### REGRAS DE NEGÓCIO
+### Rotas de Contas (accountsRoutes)
 
-- [X] Não deve ser possível cadastrar uma conta com CPF já existente
+📚 GET /accounts
+Retorna todas as contas. Não requer parâmetros.
 
-- [X] Não deve ser possível fazer um depósito em uma conta não existente
+🔍 GET /accounts/filter/:parameter
+Retorna uma conta específica com base no parâmetro fornecido. O parâmetro pode ser o nome, cpf ou id da conta.
 
-- [X] Não deve ser possível buscar um extrato em uma conta não existente
+➕ POST /accounts
+Cria uma nova conta. O nome e o cpf devem ser fornecidos no corpo da solicitação.
 
-- [X] Não deve ser possível fazer um saque em uma conta não existente
+✏️ PATCH /accounts/:id
+Atualiza o nome de uma conta específica. O novo nome deve ser fornecido no corpo da solicitação.
 
-- [X] Não deve ser possível excluir uma conta não existente
+❌ DELETE /accounts/:id
+Exclui uma conta específica. O id da conta é passado como parâmetro na URL.
 
-- [X] Não deve ser possível fazer um saque quando o saldo for insuficiente
+### Rotas de Extratos (statementsRoutes)
+
+📃 GET /statement/:id
+Retorna o extrato de uma conta específica. O id da conta é passado como parâmetro na URL.
+
+📅 GET /statement/:id/date
+Retorna o extrato de uma conta específica em uma data específica. A data é fornecida como um parâmetro de consulta.
+
+### Rotas de Transações (transactionsRoutes)
+
+💰 POST /deposit/:id
+Realiza um depósito em uma conta específica. O valor e o tipo de transação devem ser fornecidos no corpo da solicitação.
+
+💸 POST /withdraw/:id
+Realiza um saque de uma conta específica. O valor e o tipo de transação devem ser fornecidos no corpo da solicitação.
+
+🧩 Middlewares
+📚 getAccounts
+Recupera todas as contas do servidor.
+
+🔍 verifyAccountExistence
+Verifica se uma conta específica existe.
