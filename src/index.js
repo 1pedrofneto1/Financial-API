@@ -6,8 +6,7 @@ const app = express();
 
 app.use(express.json());
 
-const getAccount = async () => {
-  let accounts;
+const getAccounts = async (req, res, next) => {
   await fetch("http://localhost:3000/accounts", {
     method: "GET",
     headers: {
@@ -16,15 +15,16 @@ const getAccount = async () => {
   })
     .then((res) => res.json())
     .then((data) => {
-      accounts = data;
+      req.accounts = data;
+      console.log(req.accounts);
     })
-    .catch((err) => console.log(`Error:${err}`));
+    .catch((err) => res.status(404).json(`Error:${err}`));
 
-  return accounts;
+  next();
 };
 
-const getStatement = async (id) => {
-  let statement;
+const getStatement = async (req, res, next) => {
+  const { id } = req.params;
   await fetch(`http://localhost:3333/account/${id}`, {
     method: "GET",
     headers: {
@@ -33,68 +33,56 @@ const getStatement = async (id) => {
   })
     .then((res) => res.json())
     .then((data) => {
-      statement = data[0].statement;
+      req.statement = data[0].statement;
     })
-    .catch((err) => console.log(`Error:${err}`));
+    .catch((err) => res.status(404).json(`Error:${err}`));
 
-  return statement;
+  next();
 };
 
-app.get("/accounts", async (req, res) => {
-  const accounts = await getAccount();
-
-  return res.status(200).send(accounts);
+app.get("/accounts", getAccounts, async (req, res) => {
+  return res.status(200).json(req.accounts);
 });
 
-app.get("/account/:id", async (req, res) => {
+app.get("/account/:id", getAccounts, async (req, res) => {
   const { id } = req.params;
 
-  const accounts = await getAccount();
-
-  const account = accounts.filter((account) => account.id === id);
+  const account = req.accounts.filter((account) => account.id === id);
 
   if (account.length === 0) {
-    return res.status(404).send({ Error: "Account not found" });
+    return res.status(404).json({ Error: "Account not found" });
   }
 
-  return res.status(200).send(account);
+  return res.status(200).json(account);
 });
 
-app.get("/account/filter/:parameter", async (req, res) => {
+app.get("/account/filter/:parameter", getAccounts, async (req, res) => {
   const { parameter } = req.params;
 
-  const accounts = await getAccount();
-
-  const account = accounts.filter(
+  const account = req.accounts.filter(
     (account) => account.name === parameter || account.cpf === Number(parameter)
   );
 
   if (account.length > 0) {
-    return res.status(200).send(account);
+    return res.status(200).json(account);
   }
 
-  return res.status(404).send({ Error: "Account not found!!!" });
+  return res.status(404).json({ Error: "Account not found!!!" });
 });
 
-app.get("/statement/:id", async (req, res) => {
-  const { id } = req.params;
-
-  const accountStatement = await getStatement(id);
-
-  if (!accountStatement) {
-    return res.status(404).send({ Error: "Account not found" });
+app.get("/statement/:id", getStatement, async (req, res) => {
+  if (!req.statement) {
+    return res.status(404).json({ Error: "Account not found" });
   }
 
-  return res.status(200).send(accountStatement);
+  return res.status(200).json(req.statement);
 });
 
-app.post("/accounts", async (req, res) => {
+app.post("/accounts", getAccounts, async (req, res) => {
   const { name, cpf } = req.body;
 
-  const accounts = await getAccount();
-
-  if (accounts.some((account) => account.cpf === cpf)) {
-    return res.status(400).send({ Error: "Cpf already registered!!!" });
+  if (req.accounts.some((account) => account.cpf === cpf)) {
+    return res.status(400).json({ Error: "Cpf already registered!!!" });
   }
 
   fetch("http://localhost:3000/accounts", {
@@ -113,7 +101,7 @@ app.post("/accounts", async (req, res) => {
     .then((data) => console.log(data))
     .catch((err) => console.log(`Error:${err}`));
 
-  return res.status(201).send({ Sucess: "Account created!!!" });
+  return res.status(201).json({ Sucess: "Account created!!!" });
 });
 
 app.delete("/account/:id", async (req, res) => {
@@ -132,11 +120,11 @@ app.delete("/account/:id", async (req, res) => {
       return res.json();
     })
     .then((data) => {
-      res.status(200).send({ message: "Account deleted!!!" });
+      res.status(200).json({ message: "Account deleted!!!" });
     })
     .catch((err) => {
       console.error(`Error: ${err}`);
-      res.status(404).send({ Error: "Account not found!!!" });
+      res.status(404).json({ Error: "Account not found!!!" });
     });
 });
 
