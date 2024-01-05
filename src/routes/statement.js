@@ -6,7 +6,7 @@ import verifyAccountExistence from "../middlewares/verifyAccountExistence.js";
 const router = express.Router();
 
 router.get(
-  "/statement/:id",
+  "/:id",
   getAccounts,
   verifyAccountExistence,
   (req, res) => {
@@ -15,7 +15,7 @@ router.get(
 );
 
 router.get(
-  "/statement/:id/date",
+  "/:id/date",
   getAccounts,
   verifyAccountExistence,
   (req, res) => {

@@ -8,8 +8,8 @@ const app = express();
 
 app.use(express.json());
 
-app.use(accountsRoutes);
-app.use(statementRoutes);
-app.use(transactionsRoutes);
+app.use("/accounts", accountsRoutes);
+app.use("/statements", statementRoutes);
+app.use("/transactions", transactionsRoutes);
 
 app.listen(3333);

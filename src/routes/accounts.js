@@ -7,12 +7,12 @@ import verifyAccountExistence from "../middlewares/verifyAccountExistence.js";
 
 const router = express.Router();
 
-router.get("/accounts", getAccounts, (req, res) => {
+router.get("/", getAccounts, (req, res) => {
   return res.status(200).json(req.accounts);
 });
 
 router.get(
-  "/accounts/filter/:parameter",
+  "/filter/:parameter",
   getAccounts,
   verifyAccountExistence,
   (req, res) => {
@@ -20,7 +20,7 @@ router.get(
   }
 );
 
-router.post("/accounts", getAccounts, async (req, res) => {
+router.post("/", getAccounts, async (req, res) => {
   const { name, cpf } = req.body;
 
   if (req.accounts.some((account) => account.cpf === cpf)) {
@@ -50,54 +50,44 @@ router.post("/accounts", getAccounts, async (req, res) => {
     });
 });
 
-router.patch(
-  "/accounts/:id",
-  getAccounts,
-  verifyAccountExistence,
-  async (req, res) => {
-    const { name } = req.body;
+router.patch("/:id", getAccounts, verifyAccountExistence, async (req, res) => {
+  const { name } = req.body;
 
-    await fetch(`http://localhost:3000/accounts/${req.params.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: name,
-      }),
+  await fetch(`http://localhost:3000/accounts/${req.params.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: name,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      return res
+        .status(200)
+        .json({ Message: "Name updated successfully!!!", data });
     })
-      .then((res) => res.json())
-      .then((data) => {
-        return res
-          .status(200)
-          .json({ Message: "Name updated successfully!!!", data });
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.status(400).json({ Error: "Failed to update name" });
-      });
-  }
-);
+    .catch((err) => {
+      console.log(err);
+      return res.status(400).json({ Error: "Failed to update name" });
+    });
+});
 
-router.delete(
-  "/accounts/:id",
-  getAccounts,
-  verifyAccountExistence,
-  async (req, res) => {
-    await fetch(`http://localhost:3000/accounts/${req.params.id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+router.delete("/:id", getAccounts, verifyAccountExistence, async (req, res) => {
+  await fetch(`http://localhost:3000/accounts/${req.params.id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then(() => {
+      return res.status(200).json({ message: "Account deleted!!!" });
     })
-      .then(() => {
-        return res.status(200).json({ message: "Account deleted!!!" });
-      })
-      .catch((err) => {
-        console.error(`Error: ${err}`);
-        return res.status(400).json({ Error: "Error deleting account!!!" });
-      });
-  }
-);
+    .catch((err) => {
+      console.error(`Error: ${err}`);
+      return res.status(400).json({ Error: "Error deleting account!!!" });
+    });
+});
 
 export default router;
